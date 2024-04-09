@@ -34,9 +34,9 @@ The application includes tools for displaying data visually. These tools show ho
 
 Although the main aim of this application is to give the non-technical user the ability to predict the tumor diagnosis, for the technical users the application provides a good overview of the different machine learning application and their performance comparision.
 
-The web application can be accessed using this link : <https://palak2803.shinyapps.io/BreastCancerPrediction_FinalApp/>
+The web application can be accessed using this link : <https://palak2803.shinyapps.io/BreastCancerApplication_Final/>
 
-The source code can be accessed using the following github link : <https://palak2803.shinyapps.io/BreastCancerApplication_Final/>
+The source code can be accessed using the following github link : <https://github.com/palak2803/BreastCancerPrediction/tree/main>
 
 The interface of the Breast Cancer Prediction application is straightforward and easy to use, it's important to note that this is still a application designed for academic purposes. It works well within the scope of its dataset, but might not yet handle the variety and complexity of real-world clinical data. This report will explore the main features of the application, including its data processing, data visualization the types of models it uses for predictions, and its user interface. The aim is to show how these elements combine to make this application a useful tool for diagnosing and treating breast cancer.
 
