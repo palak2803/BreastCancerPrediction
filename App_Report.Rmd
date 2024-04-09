@@ -36,7 +36,7 @@ Although the main aim of this application is to give the non-technical user the 
 
 The web application can be accessed using this link : <https://palak2803.shinyapps.io/BreastCancerPrediction_FinalApp/>
 
-The source code can be accessed using the following github link : <https://github.com/palak2803/BreastCancerPrediction>
+The source code can be accessed using the following github link : <https://palak2803.shinyapps.io/BreastCancerApplication_Final/>
 
 The interface of the Breast Cancer Prediction application is straightforward and easy to use, it's important to note that this is still a application designed for academic purposes. It works well within the scope of its dataset, but might not yet handle the variety and complexity of real-world clinical data. This report will explore the main features of the application, including its data processing, data visualization the types of models it uses for predictions, and its user interface. The aim is to show how these elements combine to make this application a useful tool for diagnosing and treating breast cancer.
 
@@ -122,7 +122,7 @@ logisticCM <- confusionMatrix(as.factor(logisticPreds), as.factor(testData$diagn
 
 ```
 
-## 3.4 Application execution : 
+## 3.4 Application execution :
 
 Upon launching the web application, the **`app.R`** script begins by loading pre-trained machine learning models such as Logistic Regression, SVM, Random Forest, and KNN from saved RDS files from the same directory. It then runs the front-end and back-end components UI and server simultaneously. The UI components generate the layout of the appication that communicates with server components for their interactive capabilities. The user interface, displayed next, offers interactive elements including sidebar menus for navigating between data visualization, model predictions, and other functionalities. These functionalities are part of the components defined in the same file app.R.
 
@@ -132,7 +132,7 @@ The server component of **`app.R`** captures the input data, which is then forma
 
 ## 4.1 Access
 
-To begin using the Breast Cancer Prediction application, navigate to its web address [application link](https://palak2803.shinyapps.io/BreastCancerPrediction/) using any standard web browser. The application is deployed to shinyapps.io server using rsconnect() function and hosted online, allowing for easy and immendiate access without any local server installation or execution. The application source code can be found at the github link posted on the top right corner of the application interface.
+To begin using the Breast Cancer Prediction application, navigate to its web address [application link](https://palak2803.shinyapps.io/BreastCancerApplication_Final/) using any standard web browser. The application is deployed to shinyapps.io server using rsconnect() function and hosted online, allowing for easy and immendiate access without any local server installation or execution. The application source code can be found at the github link posted on the top right corner of the application interface.
 
 ## 4.2 Navigate
 
