@@ -1,3 +1,4 @@
+#load required packages
 library(shiny)
 library(shinydashboard)
 library(e1071)
@@ -6,9 +7,10 @@ library(class)
 library(DT)
 library(corrplot)
 
+#Reference the model_training.R script.
 source("model_training.R")
 
-# Load the models
+# Load the models and extract accuracies, Sensitivity and Specificity
 logisticModel <- readRDS("logisticModel.rds")
 svmModel <- readRDS("svmModel.rds")
 randomForestModel <- readRDS("randomForestModel.rds")
@@ -36,30 +38,122 @@ combinedMetrics <- rbind(
   cbind(Model = "KNN", knnMetrics)
 )
 
+# User interface components
 ui <- dashboardPage(
   dashboardHeader(
     title = "Breast Cancer Prediction",
     titleWidth = 650,
     tags$li(class = "dropdown",
-            tags$a(href = "https://www.youtube.com/playlist?list=PL6wLL_RojB5xNOhe2OTSd-DPkMLVY9DfB",
-                   icon("youtube"), " My Channel", target = "_blank")),
+            tags$a(href = "https://github.com/palak2803/BreastCancerPrediction",
+                   icon("github"), "Source Code", class = "btn-primary")),
     tags$li(class = "dropdown",
-            tags$a(href = "https://www.linkedin.com/in/abhinav-agrawal-pmp%C2%AE-safe%C2%AE-5-agilist-csm%C2%AE-5720309",
-                   icon("linkedin"), " My Profile", target = "_blank")),
-    tags$li(class = "dropdown",
-            tags$a(href = "https://github.com/aagarw30/R-Shiny-Dashboards/tree/main/USArrestDashboard",
-                   icon("github"), " Source Code", target = "_blank"))
+            downloadButton("downloadReport", "Download Report", class = "btn-primary"))
   ),
   dashboardSidebar(
     sidebarMenu(
       menuItem("About", tabName = "about", icon = icon("info-circle")),
       menuItem("Data", tabName = "data", icon = icon("database")),
-      menuItem("Visualization", tabName = "visualization", icon = icon("chart-bar")),  # Visualization menu item
+      menuItem("Visualization", tabName = "visualization", icon = icon("chart-bar")), 
       menuItem("Model Prediction", tabName = "model_prediction", icon = icon("project-diagram"))
     )
   ),
   dashboardBody(
+    tags$head(
+      tags$style(HTML('
+                /* Settinh Header background color */
+                .main-header .navbar, .main-header .logo {
+                    background-color: #c2185b !important; 
+                }
+
+                /* Setting Sidebar toggle and other navigation bar elements */
+                .main-header .navbar .sidebar-toggle, .main-header .navbar .navbar-custom-menu a {
+                    color: #ffffff !important; 
+                }
+
+                /* Adjusting Sidebar color */
+                .skin-blue .main-sidebar, .skin-blue .left-side {
+                    background-color: #c2185b !important; 
+                }
+
+                /* Override button colors for consistency */
+                .btn-primary {
+                    background-color: #c2185b; 
+                    border-color: #ad1457;
+                }
+                .btn-primary:hover {
+                    background-color: #ad1457; 
+                    border-color: #880e4f;
+                }
+
+                /* Active menu item in the sidebar */
+                .sidebar-menu > li.active > a {
+                    background-color: #c2185b !important;
+                    border-left-color: #d81b60 !important;
+                }
+
+                /* General link colors */
+                a {
+                    color: #880e4f; 
+                }
+                
+                /* Tab and box headers in the main content */
+                .nav-tabs-custom > .nav-tabs > li.active {
+                    border-top-color: #c2185b;
+                }
+                .box.box-solid > .box-header {
+                    background-color: #f06292;
+                    border-color: #f06292;
+                }
+                .nav-tabs-custom > .nav-tabs > li {
+                    background: #f8bbd0;
+                    border-top-color: #c2185b;
+                }
+                
+                .dataTables_wrapper .dataTables_paginate .paginate_button {
+                    background-color: #f8bbd0;
+                    color: #880e4f !important;
+                }
+                .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                    background-color: #ec407a;
+                    color: #ffffff !important;
+                }
+                .dataTables_wrapper .dataTables_filter input,
+                .dataTables_wrapper .dataTables_length select {
+                    border-color: #ec407a; /* Pink border for input and select */
+                }
+                table.dataTable thead th, table.dataTable thead td {
+                    background-color: #ec407a !important; /* Pink header for tables */
+                    color: #ffffff;
+                }
+                table.dataTable {
+                    border-color: #ec407a; /* Pink border for table */
+                }
+            
+            '))
+    ),
+    
     tabItems(
+      tabItem(
+        tabName = "about",
+        h3("About the Breast Cancer Prediction App"),
+        h5("This application is developed as a part of AMOD5250H final project which assists users in predicting breast cancer severity based on diagnostic measurements of the tumor characteristics extracted from images. 
+            It integrates advanced machine learning algorithms such as Logistic Regression, Support vector machine, Random Forest and, KNN and compares their performace metrics against the Breast Cancer Wisconsin Dataset (WBCD). 
+            This tool can help in early detection and enhances the decision-making process, significantly improving patient outcomes."),
+        fluidRow(
+          column(6, img(src = "about_image.jpeg", height = "300px", style = "width:100%;")),
+          column(6, img(src = "tumor_image.jpeg", height = "300px", style = "width:100%;"))
+        ),
+        h3("Understanding Breast Cancer: Benign vs. Malignant"),
+        h5("Breast cancer can manifest as benign or malignant tumors. 
+           Benign tumors are non-cancerous and do not spread to other parts of the body, often easy to treat and unlikely to recur. Malignant tumors, however, are cancerous and can invade nearby tissues or metastasize to distant areas, requiring more aggressive treatment. 
+           Early and accurate distinction between these types is vital for effective treatment."),
+        h3("How it works"),
+        h5("Users can navigate through various tabs to view data visualizations, enter new diagnostic measurements to receive predictions, and compare model performances. 
+            The application dynamically updates the visualizations based on user interactions, providing a tailored analytical experience. 
+            Additionally, users can access the application's source code via the 'Source Code' button in the top-right corner and download the application report using the 'Download Report' button."),
+        h3("Scientific Basis"),
+        h5("The models are trained on well-curated data from the Wisconsin Breast Cancer Database, which includes measurements such as the radius, texture, perimeter, and area of breast mass samples. Each model has been fine-tuned to offer high accuracy and reliability, reflecting the latest advancements in machine learning and statistical analysis.")
+      ),
       tabItem(
         tabName = "data",
         tabBox(
@@ -86,7 +180,7 @@ ui <- dashboardPage(
           width = 12,
           tabPanel("Prediction",
                    fluidRow(
-                     box(title = "Input Features", status = "primary", solidHeader = TRUE, collapsible = TRUE,
+                     box(status = "primary", solidHeader = FALSE, collapsible = FALSE,
                          width = 12,
                          numericInput("radius_mean", "Radius Mean", value = 14),
                          numericInput("texture_mean", "Texture Mean", value = 20),
@@ -108,18 +202,14 @@ ui <- dashboardPage(
                      valueBoxOutput("randomForestBox"),
                      valueBoxOutput("knnBox")
                    )),
-          tabPanel("Model Performance",
-                   fluidRow(
-                     box(title = "Model Metrics", status = "primary", solidHeader = TRUE, collapsible = TRUE,
-                         DTOutput("metricsTable")
-                     )
-                   ))
+          tabPanel("Model Performance", dataTableOutput("metricsTable"), icon = icon("table")),
         )
       )
     )
   )
 )
 
+#Server component that handles the backend processing of the application
 server <- function(input, output, session) {
   observeEvent(input$predict, {
     inputData <- data.frame(
@@ -150,7 +240,7 @@ server <- function(input, output, session) {
     
     updateTabsetPanel(session = session, inputId = "modelPredictionTabs", selected = "Results")
     
-    # Update UI
+    # Logic to create the prediction results boxes
     output$logisticBox <- renderValueBox({
       valueBox(
         "Logistic Regression",
@@ -184,35 +274,46 @@ server <- function(input, output, session) {
       )
     })
   })
+  # Logic to generate the metrics table
   output$metricsTable <- renderDT({
-    datatable(combinedMetrics, options = list(pageLength = 10), rownames = FALSE)
+    datatable(combinedMetrics,options = list(
+      pageLength = 10, 
+      autoWidth = FALSE,
+      scrollX = TRUE,   
+      scrollY = "650px", 
+      scrollCollapse = TRUE,
+      paging = FALSE   
+    ), class="display" )
   })
   
+  #logic to generate the raw data table
   output$dataT <- renderDataTable({
     datatable(data_final, 
               options = list(
                 pageLength = 10, 
                 autoWidth = FALSE,
-                scrollX = TRUE,    # Enable horizontal scrolling
-                scrollY = "650px",  # Set vertical scrolling area height
-                scrollCollapse = TRUE,# Optional: Allow scroll area to shrink if the content is smaller
-                paging = FALSE    # Disable pagination to show all data on a single page
+                scrollX = TRUE,   
+                scrollY = "650px", 
+                scrollCollapse = TRUE,
+                paging = FALSE  
               ), class="display"
     )
   })
   
+  #logic to generate the structure table
   output$structureTable <- renderDataTable({
     datatable(df_structure, 
               options = list(
                 pageLength = 10, 
                 autoWidth = FALSE,
-                scrollX = TRUE,    # Enable horizontal scrolling
-                scrollY = "650px",  # Set vertical scrolling area height
-                scrollCollapse = TRUE,# Optional: Allow scroll area to shrink if the content is smaller
+                scrollX = TRUE,   
+                scrollY = "650px",  
+                scrollCollapse = TRUE,
                 paging = FALSE
                 ), class="display")
   })
   
+  # Logic to render the summary table
   output$summary <- renderDataTable({
     selectedVars <- c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", 
                       "smoothness_mean", "compactness_mean","concavity_mean", "concave_points_mean","symmetry_mean","fractal_dimension_mean")
@@ -224,6 +325,7 @@ server <- function(input, output, session) {
               )
   })
   
+  #Logic to handle the feature distribution plot
   output$featureDistributionsPlot <- renderPlot({
     # Prepare the data for plotting by gathering the selected features into long format
     selectedVars <- c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", 
@@ -233,35 +335,39 @@ server <- function(input, output, session) {
     # Create the plot with a consistent and attractive theme
     p <- ggplot(longData, aes(x = Value, fill = Feature)) +
       geom_histogram(bins = 20, color = "black", alpha = 0.7) +
-      scale_fill_brewer(palette = "Blues", guide = FALSE) +  # Using a color brewer palette for aesthetic fill
+      scale_fill_manual(values = colorRampPalette(c("#FFC0CB", "#FF69B4", "#C71585"))(200))  +  
       facet_wrap(~ Feature, scales = "free") +
       theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-            strip.background = element_rect(fill = "lightblue"),
+            strip.background = element_rect(fill = "#e0bbd2"),
             strip.text = element_text(size = 10),
-            legend.position = "none") +  # Hide the legend if not needed
+            legend.position = "none") +  
       labs(title = "Feature Distributions", x = "", y = "Count")
     
     print(p)
   })
   
-  
+  #Logic to generate correlation heatmap
   output$correlationHeatmapPlot <- renderPlot({
-    # Ensure you're only including numeric columns for the correlation calculation
+  
     selected_features <- data_final[, c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", 
                                         "smoothness_mean", "compactness_mean","concavity_mean", "concave_points_mean","symmetry_mean","fractal_dimension_mean","diagnosis")]
     numeric_features <- selected_features[, sapply(selected_features, is.numeric)]
     
     # Calculate correlation on numeric features
     M <- cor(numeric_features, use = "complete.obs")
-    corrplot(M, method = "color", type = "upper", order = "hclust",
-             addCoef.col = "black", tl.col = "black", tl.srt = 45,
-             title = "Feature Correlation Heatmap")
+    corrplot(M, 
+             method = "color", 
+             type = "upper", 
+             order = "hclust",
+             col = colorRampPalette(c("#FFC0CB", "#FF69B4", "#C71585"))(200),
+             addCoef.col = "black", 
+             tl.col = "black", 
+             tl.srt = 45
+            )
   })
   
-  # Assuming randomForestModel is your Random Forest model object loaded from an RDS file
-
-  # Ensure correct extraction of feature names and importance values
+  #logic to generate the feature importance bar plot
   if(ncol(randomForestModel$importance) > 0) {
     feature_importance <- data.frame(
       Feature = rownames(randomForestModel$importance),
@@ -275,7 +381,7 @@ server <- function(input, output, session) {
   output$featureImportancePlot <- renderPlot({
     ggplot(feature_importance, aes(x = reorder(Feature, Importance), y = Importance, fill = Importance)) +
       geom_bar(stat = "identity") +  # Use fill from the aesthetic mapping
-      scale_fill_gradient(low = "lightblue", high = "darkblue") +  # Gradient fill from light to dark blue
+      scale_fill_gradient(low = "#e0bbd2", high = "#a3386c") +  # Gradient fill from light to dark blue
       coord_flip() +  # Horizontal layout for better readability of feature names
       labs(
         title = "Feature Importance",
@@ -284,12 +390,23 @@ server <- function(input, output, session) {
       ) +
       theme_minimal() +
       theme(
-        axis.title.x = element_text(face = "bold", size = 12),  # Make x-axis label bold
-        axis.title.y = element_text(face = "bold", size = 12),  # Make y-axis label bold
-        plot.title = element_text(face = "bold", size = 14)     # Optionally, make the plot title bold
+        axis.title.x = element_text(face = "bold", size = 12),  
+        axis.title.y = element_text(face = "bold", size = 12), 
+        plot.title = element_text(face = "bold", size = 14)    
       )
   })
   
+  # logic to implement the download report functionality
+  output$downloadReport <- downloadHandler(
+    filename = function() {
+      "Report.pdf" 
+    },
+    content = function(file) {
+      file.copy("Report.pdf", file) 
+    }
+  )
+  
 }
 
+# main application entry-point
 shinyApp(ui, server)

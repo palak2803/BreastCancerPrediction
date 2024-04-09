@@ -1,3 +1,4 @@
+#load required packages
 library(caret)
 library(randomForest)
 library(e1071) # For SVM
@@ -7,7 +8,7 @@ library(kknn)
 # Load the dataset
 data_temp <- read.csv("wdbc.csv", stringsAsFactors = TRUE)
 
-# Convert diagnosis to a binary factor
+# Convert diagnosis to a binary factors of 1 and 0
 data_temp$diagnosis <- as.factor(ifelse(data_temp$diagnosis == "M", 1, 0))
 
 data <- data_temp[, c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", 
@@ -20,7 +21,7 @@ predictors <- data[, c("radius_mean", "texture_mean", "perimeter_mean", "area_me
 target <- data$diagnosis
 
 
-# Split the dataset into training and testing sets
+# Split the dataset into training and testing sets for model training
 set.seed(123)
 trainIndex <- createDataPartition(target, p = .8, list = FALSE)
 trainData <- data[trainIndex, ]
@@ -33,18 +34,17 @@ testX <- testData[, names(testData) %in% names(predictors)]
 testY <- testData$diagnosis
 
 
-# Train Logistic Regression Model
+# Logistic Regression Model Traning
 logisticModel <- glm(diagnosis ~ ., data = cbind(trainX, diagnosis = trainY), family = "binomial")
 
-# Train SVM Model
+# SVM Model training
 svmModel <- svm(diagnosis ~ ., data = cbind(trainX, diagnosis = trainY), type = 'C-classification', kernel = 'linear')
 
-# Train Random Forest Model
+# Random Forest Model training
 randomForestModel <- randomForest(diagnosis ~ ., data = cbind(trainX, diagnosis = trainY), importance=TRUE,ntree = 500)
 print(randomForestModel$importance)
 
-
-# Train KNN Model
+#  KNN Model training
 knnModel <- knn3(diagnosis ~ ., data = cbind(trainX, diagnosis = trainY), k = 5)
 
 
@@ -91,6 +91,7 @@ saveRDS(list(logistic=logisticCM, svm=svmCM, randomForest=randomForestCM, knn=kn
 
 data_final <- data
 
+#generate structure dataset that will be used in the app.R script to generate the structure table
 df_structure <- data.frame(
   Feature_Name = c("ID","radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean",
                    "compactness_mean", "concavity_mean", "concave_points_mean", "symmetry_mean", "fractal_dimension_mean","diagnosis"),
@@ -108,8 +109,8 @@ df_structure <- data.frame(
                "numeric", "numeric", "numeric", "numeric", "numeric","Categorical")
 )
 
-# Print the dataframe to view its structure
 
+#generate Summary stats dataset that will be used in the app.R script to generate the stats table for the raw data
 calculateSummaryStats <- function(data, selectedVars) {
   selectedData <- data[selectedVars]
   stats <- data.frame(
